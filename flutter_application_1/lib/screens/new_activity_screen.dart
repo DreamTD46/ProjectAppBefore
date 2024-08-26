@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:intl/intl.dart'; // สำหรับการจัดรูปแบบเวลา
 
 class NewActivityScreen extends StatefulWidget {
   final void Function(String name, String note, DateTime dateTime) onAdd;
@@ -166,7 +167,7 @@ class _NewActivityScreenState extends State<NewActivityScreen> {
   Future<void> saveActivity() async {
     String activityName = _nameController.text.trim();
     String description = _noteController.text.trim();
-    String activityDateTime = _selectedDateTime.toIso8601String();
+    String activityDateTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(_selectedDateTime); // ใช้รูปแบบที่ตรง
 
     if (activityName.isEmpty || description.isEmpty || activityDateTime.isEmpty) {
       Fluttertoast.showToast(
