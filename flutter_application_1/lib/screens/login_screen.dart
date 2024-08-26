@@ -10,7 +10,10 @@ class LoginScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final authService = Provider.of<MockAuthService>(context);
     return Scaffold(
-      appBar: AppBar(title: Text('Welcome!')),
+      appBar: AppBar(
+        title: Text('Welcome!'),
+        backgroundColor: Colors.teal, // ใช้สีหลัก
+      ),
       body: Padding(
         padding: EdgeInsets.all(16.0),
         child: Column(
@@ -18,11 +21,23 @@ class LoginScreen extends StatelessWidget {
           children: [
             TextField(
               controller: emailController,
-              decoration: InputDecoration(labelText: 'Email'),
+              decoration: InputDecoration(
+                labelText: 'Email',
+                labelStyle: TextStyle(color: Colors.teal), // สีของป้ายชื่อ
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.teal), // สีขอบขณะเลือก
+                ),
+              ),
             ),
             TextField(
               controller: passwordController,
-              decoration: InputDecoration(labelText: 'Password'),
+              decoration: InputDecoration(
+                labelText: 'Password',
+                labelStyle: TextStyle(color: Colors.teal), // สีของป้ายชื่อ
+                focusedBorder: UnderlineInputBorder(
+                  borderSide: BorderSide(color: Colors.teal), // สีขอบขณะเลือก
+                ),
+              ),
               obscureText: true,
             ),
             SizedBox(height: 20),
@@ -41,26 +56,38 @@ class LoginScreen extends StatelessWidget {
                 }
               },
               child: Text('Login'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white, backgroundColor: Colors.teal, // สีของข้อความ
+              ),
             ),
             TextButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/pin');
               },
               child: Text('Forgot password'),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.teal, // สีของข้อความปุ่ม
+              ),
             ),
             TextButton(
               onPressed: () {
                 Navigator.pushNamed(context, '/Register');
               },
               child: Text('Register'),
+              style: TextButton.styleFrom(
+                foregroundColor: Colors.teal, // สีของข้อความปุ่ม
+              ),
             ),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
                 await authService.signInWithGoogle();
                 Navigator.pushReplacementNamed(context, '/Googlelogin');
               },
               child: Text('Google'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white, backgroundColor: Colors.red, // สีของข้อความ
+              ),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -68,7 +95,9 @@ class LoginScreen extends StatelessWidget {
                 Navigator.pushReplacementNamed(context, '/FacebookLogin');
               },
               child: Text('Facebook'),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white, backgroundColor: Colors.blue, // สีของข้อความ
+              ),
             ),
           ],
         ),
