@@ -1,7 +1,10 @@
+// home_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:intl/intl.dart'; // สำหรับการจัดรูปแบบเวลา
 import 'new_activity_screen.dart';
 import 'activity_detail_screen.dart';
 
@@ -29,15 +32,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
         setState(() {
           _activities = activities.map((activity) {
-            // Parse UTC DateTime from database and convert to local time
-            final utcDateTime = DateTime.parse(activity['activity_date']);
-            final localDateTime = utcDateTime.toLocal();  // Convert to local time
-
+            // ใช้เวลาที่เก็บในฐานข้อมูล
             return {
               'id': activity['id'],
               'name': activity['activity_name'],
               'note': activity['description'],
-              'dateTime': localDateTime.toIso8601String(),  // Store as local time
+              'dateTime': activity['activity_date'], // ใช้เวลาที่ได้จากฐานข้อมูล
             };
           }).toList();
         });
@@ -60,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
           'id': activity['id'] ?? '',
           'activity_name': activity['name'],
           'description': activity['note'],
-          'activity_date': DateTime.parse(activity['dateTime']).toUtc().toIso8601String(),  // Save as UTC
+          'activity_date': activity['dateTime'], // ใช้เวลาที่ผู้ใช้เลือก
         },
       );
 
@@ -89,14 +89,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _addActivity(String name, String note, DateTime dateTime, [int? index]) async {
-    // Convert selected DateTime to UTC before sending to the server
-    final utcDateTime = dateTime.toUtc();
+    final formattedDateTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime); // ใช้รูปแบบที่ตรงตามเวลาที่ผู้ใช้เลือก
 
     final newActivity = {
       'id': index != null ? _activities[index]['id'] : '',
       'name': name,
       'note': note,
-      'dateTime': utcDateTime.toIso8601String(),  // Save as UTC
+      'dateTime': formattedDateTime, // เก็บเวลาที่ผู้ใช้เลือก
     };
 
     setState(() {
@@ -197,10 +196,10 @@ class _HomeScreenState extends State<HomeScreen> {
           itemCount: _activities.length,
           itemBuilder: (context, index) {
             final activity = _activities[index];
-            final dateTime = DateTime.parse(activity['dateTime']);  // This is already local time
+            final dateTime = DateTime.parse(activity['dateTime']); // ใช้เวลาที่เก็บไว้
 
-            final formattedDate = "${dateTime.day.toString().padLeft(2, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.year}";
-            final formattedTime = "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";
+            final formattedDate = DateFormat('yyyy-MM-dd').format(dateTime);
+            final formattedTime = DateFormat('HH:mm').format(dateTime);
 
             return Card(
               color: Colors.white,
