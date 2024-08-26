@@ -21,12 +21,25 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchActivities() async {
     try {
-      final response = await http.get(Uri.parse('http://10.10.11.238/flutter/fetch.php'));
+      final response = await http.get(Uri.parse('http://10.10.11.71/flutter/fetch.php'));
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
+        final Map<String, dynamic> data = json.decode(response.body);
+        final List<dynamic> activities = data['activities'];
+
         setState(() {
-          _activities = data.map((activity) => activity as Map<String, dynamic>).toList();
+          _activities = activities.map((activity) {
+            // Parse UTC DateTime from database and convert to local time
+            final utcDateTime = DateTime.parse(activity['activity_date']);
+            final localDateTime = utcDateTime.toLocal();  // Convert to local time
+
+            return {
+              'id': activity['id'],
+              'name': activity['activity_name'],
+              'note': activity['description'],
+              'dateTime': localDateTime.toIso8601String(),  // Store as local time
+            };
+          }).toList();
         });
       } else {
         throw Exception('Failed to load activities');
@@ -39,28 +52,27 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _saveActivityToDatabase(Map<String, dynamic> activity) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.10.11.238/flutter/add_activity.php'),
+        Uri.parse(activity['id'].isEmpty
+            ? 'http://10.10.11.71/flutter/add_activity.php'
+            : 'http://10.10.11.71/flutter/edit_activity.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
-          'id': activity['id'] ?? '', // Include 'id' for updates
-          'name': activity['name'],
-          'note': activity['note'],
-          'dateTime': activity['dateTime'],
+          'id': activity['id'] ?? '',
+          'activity_name': activity['name'],
+          'description': activity['note'],
+          'activity_date': DateTime.parse(activity['dateTime']).toUtc().toIso8601String(),  // Save as UTC
         },
       );
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-        if (responseData['status'] == 'success') {
-          Fluttertoast.showToast(
-            msg: responseData['message'],
-            toastLength: Toast.LENGTH_SHORT,
-          );
-        } else {
-          Fluttertoast.showToast(
-            msg: responseData['message'],
-            toastLength: Toast.LENGTH_SHORT,
-          );
+        Fluttertoast.showToast(
+          msg: responseData['message'],
+          toastLength: Toast.LENGTH_SHORT,
+        );
+
+        if (!activity['id'].isEmpty) {
+          _fetchActivities();
         }
       } else {
         Fluttertoast.showToast(
@@ -77,19 +89,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _addActivity(String name, String note, DateTime dateTime, [int? index]) async {
+    // Convert selected DateTime to UTC before sending to the server
+    final utcDateTime = dateTime.toUtc();
+
     final newActivity = {
-      'id': index != null ? _activities[index]['id'] : '', // Include 'id' for updates
+      'id': index != null ? _activities[index]['id'] : '',
       'name': name,
       'note': note,
-      'dateTime': dateTime.toIso8601String(),
+      'dateTime': utcDateTime.toIso8601String(),  // Save as UTC
     };
 
     setState(() {
       if (index != null) {
-        // Update existing activity
         _activities[index] = newActivity;
       } else {
-        // Add new activity
         _activities.add(newActivity);
       }
     });
@@ -101,9 +114,9 @@ class _HomeScreenState extends State<HomeScreen> {
     final activity = _activities[index];
     try {
       final response = await http.post(
-        Uri.parse('http://10.10.11.238/flutter/delete_activity.php'),
+        Uri.parse('http://10.10.11.71/flutter/delete_activity.php'),
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: {'id': activity['id']}, // Assuming 'id' is an identifier for the activity
+        body: {'id': activity['id']},
       );
 
       if (response.statusCode == 200) {
@@ -123,6 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Home'),
+        backgroundColor: Colors.teal,
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
@@ -140,7 +154,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: <Widget>[
                 DrawerHeader(
                   decoration: BoxDecoration(
-                    color: Colors.blue,
+                    color: Colors.teal,
                   ),
                   child: Align(
                     alignment: Alignment.topLeft,
@@ -168,49 +182,58 @@ class _HomeScreenState extends State<HomeScreen> {
                 onPressed: () {
                   Navigator.pushNamed(context, '/settings');
                 },
+                color: Colors.teal,
               ),
             ),
           ],
         ),
       ),
-      body: _activities.isEmpty
-          ? Center(child: Text('No activities yet. Add some!'))
-          : ListView.builder(
-        itemCount: _activities.length,
-        itemBuilder: (context, index) {
-          final activity = _activities[index];
-          final dateTime = DateTime.parse(activity['dateTime']);
-          return Card(
-            color: const Color.fromARGB(255, 255, 255, 255),
-            margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-            elevation: 4,
-            child: ListTile(
-              contentPadding: EdgeInsets.all(16.0),
-              title: Text(activity['name']),
-              subtitle: Text(activity['note']),
-              trailing: Text(
-                "${dateTime.toLocal()}".split(' ')[0] +
-                    " " +
-                    dateTime.hour.toString().padLeft(2, '0') +
-                    ":" +
-                    dateTime.minute.toString().padLeft(2, '0'),
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: _activities.isEmpty
+            ? Center(child: Text('No activities yet. Add some!', key: ValueKey('empty')))
+            : ListView.builder(
+          key: ValueKey('list'),
+          itemCount: _activities.length,
+          itemBuilder: (context, index) {
+            final activity = _activities[index];
+            final dateTime = DateTime.parse(activity['dateTime']);  // This is already local time
+
+            final formattedDate = "${dateTime.day.toString().padLeft(2, '0')}-${dateTime.month.toString().padLeft(2, '0')}-${dateTime.year}";
+            final formattedTime = "${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}";
+
+            return Card(
+              color: Colors.white,
+              margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.0),
               ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ActivityDetailScreen(
-                      activity: activity,
-                      index: index,
-                      onSave: _addActivity,
-                      onDelete: _deleteActivity,
+              child: ListTile(
+                contentPadding: EdgeInsets.all(16.0),
+                title: Text(activity['name'], style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal)),
+                subtitle: Text(activity['note']),
+                trailing: Text(
+                  "$formattedDate $formattedTime",
+                  style: TextStyle(color: Colors.deepOrange),
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ActivityDetailScreen(
+                        activity: activity,
+                        index: index,
+                        onSave: _addActivity,
+                        onDelete: _deleteActivity,
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
-          );
-        },
+                  );
+                },
+              ),
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -222,6 +245,7 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
         child: Icon(Icons.add),
+        backgroundColor: Colors.teal,
       ),
     );
   }
