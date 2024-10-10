@@ -18,6 +18,7 @@ $id = isset($_POST['id']) ? $_POST['id'] : null;
 
 if ($id === null) {
     echo json_encode(["status" => "error", "message" => "Error: Missing data"]);
+    mysqli_close($db);
     exit();
 }
 
@@ -25,7 +26,8 @@ if ($id === null) {
 $sql = "SELECT id FROM activities WHERE id = ?";
 $stmt = mysqli_prepare($db, $sql);
 if ($stmt === false) {
-    echo json_encode(["status" => "error", "message" => "Failed to prepare statement"]);
+    echo json_encode(["status" => "error", "message" => "Failed to prepare SELECT statement"]);
+    mysqli_close($db);
     exit();
 }
 
@@ -34,11 +36,12 @@ mysqli_stmt_execute($stmt);
 mysqli_stmt_store_result($stmt);
 
 if (mysqli_stmt_num_rows($stmt) == 1) {
-    // Prepare delete statement
+    // Record exists, prepare delete statement
     $delete = "DELETE FROM activities WHERE id = ?";
     $stmt = mysqli_prepare($db, $delete);
     if ($stmt === false) {
-        echo json_encode(["status" => "error", "message" => "Failed to prepare delete statement"]);
+        echo json_encode(["status" => "error", "message" => "Failed to prepare DELETE statement"]);
+        mysqli_close($db);
         exit();
     }
 
@@ -46,13 +49,14 @@ if (mysqli_stmt_num_rows($stmt) == 1) {
     if (mysqli_stmt_execute($stmt)) {
         echo json_encode(["status" => "success", "message" => "Record deleted successfully"]);
     } else {
-        echo json_encode(["status" => "error", "message" => "Error deleting record"]);
+        echo json_encode(["status" => "error", "message" => "Error deleting record: " . mysqli_error($db)]);
     }
 } else {
     // Record does not exist
     echo json_encode(["status" => "error", "message" => "Error: Record not found"]);
 }
 
+// Close statement and connection
 mysqli_stmt_close($stmt);
 mysqli_close($db);
 ?>

@@ -15,10 +15,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $activity_name = $_POST['name'] ?? '';
     $description = $_POST['note'] ?? '';
     $activity_date = $_POST['dateTime'] ?? '';
+    $activity_time = $_POST['dateTime'] ?? '';
 
     if (!empty($activity_name) && !empty($activity_date)) {
-        $sql = "INSERT INTO activities (activity_name, description, activity_date)
-                VALUES ('$activity_name', '$description', '$activity_date')";
+        $sql = "INSERT INTO activities (activity_name, description, activity_date,activity_time)
+                VALUES ('$activity_name', '$description', '$activity_date, '$activity_time')";
 
         if (mysqli_query($db, $sql)) {
             echo json_encode("Success");
@@ -41,6 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'activity_name' => $row['activity_name'],
                 'description' => $row['description'],
                 'activity_date' => $row['activity_date'],
+                'activity_time' => $row['activity_time'],
             ];
         }
 
