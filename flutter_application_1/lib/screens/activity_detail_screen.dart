@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-<<<<<<< HEAD
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-=======
-import 'package:intl/intl.dart';  // Add this import for date and time formatting
->>>>>>> 397857386c3cabe38132a674b264d33e15ce71c3
 
 class ActivityDetailScreen extends StatefulWidget {
   final Map<String, dynamic> activity;
@@ -99,7 +95,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     }
   }
 
-<<<<<<< HEAD
   Future<void> _saveActivity() async {
     final String formattedDate = DateFormat('yyyy-MM-dd').format(_dateTime);
     final String formattedTime = DateFormat('HH:mm:ss').format(_dateTime);
@@ -166,8 +161,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
     );
   }
 
-=======
->>>>>>> 397857386c3cabe38132a674b264d33e15ce71c3
   @override
   Widget build(BuildContext context) {
     final DateFormat dateFormat = DateFormat('dd-MM-yyyy');
@@ -187,15 +180,11 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
               controller: _nameController,
               decoration: InputDecoration(
                 labelText: 'Name',
-<<<<<<< HEAD
                 labelStyle: TextStyle(
                   color: Colors.teal,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
-=======
-                labelStyle: TextStyle(color: Colors.teal, fontSize: 16, fontWeight: FontWeight.w600),
->>>>>>> 397857386c3cabe38132a674b264d33e15ce71c3
                 focusedBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.teal),
                 ),
@@ -205,15 +194,11 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
               controller: _noteController,
               decoration: InputDecoration(
                 labelText: 'Note',
-<<<<<<< HEAD
                 labelStyle: TextStyle(
                   color: Colors.teal,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
-=======
-                labelStyle: TextStyle(color: Colors.teal, fontSize: 16, fontWeight: FontWeight.w600),
->>>>>>> 397857386c3cabe38132a674b264d33e15ce71c3
                 focusedBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.teal),
                 ),
@@ -225,7 +210,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
               children: [
                 Text(
                   "${dateFormat.format(_dateTime)} ${timeFormat.format(_dateTime)}",
-<<<<<<< HEAD
                   style: TextStyle(
                     color: Colors.teal,
                     fontSize: 18,
@@ -241,38 +225,10 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                 _buildElevatedButton(
                   label: 'Select Time',
                   onPressed: _selectTime,
-=======
-                  style: TextStyle(color: Colors.teal, fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton.icon(
-                  onPressed: _selectDate,
-                  icon: Icon(Icons.calendar_today),
-                  label: Text('Select Date'),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white, backgroundColor: Colors.teal,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-                    shadowColor: Colors.black45,
-                    elevation: 5,
-                  ),
-                ),
-                SizedBox(width: 10),
-                ElevatedButton.icon(
-                  onPressed: _selectTime,
-                  icon: Icon(Icons.access_time),
-                  label: Text('Select Time'),
-                  style: ElevatedButton.styleFrom(
-                    foregroundColor: Colors.white, backgroundColor: Colors.teal,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-                    shadowColor: Colors.black45,
-                    elevation: 5,
-                  ),
->>>>>>> 397857386c3cabe38132a674b264d33e15ce71c3
                 ),
               ],
             ),
             SizedBox(height: 20),
-<<<<<<< HEAD
             _buildElevatedButton(
               label:
                   widget.activity['id'] != '' ? 'Save Changes' : 'Add Activity',
@@ -287,38 +243,6 @@ class _ActivityDetailScreenState extends State<ActivityDetailScreen> {
                   Navigator.pop(context);
                 },
                 backgroundColor: Colors.red,
-=======
-            ElevatedButton(
-              onPressed: () {
-                widget.onSave(
-                  _nameController.text,
-                  _noteController.text,
-                  _dateTime,
-                  widget.index,
-                );
-                Navigator.pop(context);
-              },
-              child: Text('Save'),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.teal,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-                shadowColor: Colors.black45,
-                elevation: 5,
-              ),
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                widget.onDelete(widget.index);
-                Navigator.pop(context);
-              },
-              child: Text('Delete'),
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.white, backgroundColor: Colors.red,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8.0)),
-                shadowColor: Colors.black45,
-                elevation: 5,
->>>>>>> 397857386c3cabe38132a674b264d33e15ce71c3
               ),
           ],
         ),
