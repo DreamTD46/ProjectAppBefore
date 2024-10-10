@@ -22,6 +22,7 @@
     lottie: ^1.2.1
     fluttertoast: ^8.2.8
     http: ^1.2.2
+    intl: ^0.18.0
 
   dev_dependencies:
     flutter_test:

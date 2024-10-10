@@ -1,7 +1,14 @@
+// home_screen.dart
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+<<<<<<< HEAD
+import 'package:intl/intl.dart'; // สำหรับการจัดรูปแบบวันที่และเวลา
+=======
+import 'package:intl/intl.dart'; // สำหรับการจัดรูปแบบเวลา
+>>>>>>> 397857386c3cabe38132a674b264d33e15ce71c3
 import 'new_activity_screen.dart';
 import 'activity_detail_screen.dart';
 
@@ -21,12 +28,43 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> _fetchActivities() async {
     try {
-      final response = await http.get(Uri.parse('http://10.10.11.238/flutter/fetch.php'));
+<<<<<<< HEAD
+      final response =
+          await http.get(Uri.parse('http://192.168.1.35/flutter/fetch.php'));
+=======
+      final response = await http.get(Uri.parse('http://10.10.11.71/flutter/fetch.php'));
+>>>>>>> 397857386c3cabe38132a674b264d33e15ce71c3
 
       if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
+        final Map<String, dynamic> data = json.decode(response.body);
+        final List<dynamic> activities = data['activities'];
+
         setState(() {
-          _activities = data.map((activity) => activity as Map<String, dynamic>).toList();
+          _activities = activities.map((activity) {
+<<<<<<< HEAD
+=======
+            // ใช้เวลาที่เก็บในฐานข้อมูล
+>>>>>>> 397857386c3cabe38132a674b264d33e15ce71c3
+            return {
+              'id': activity['id'],
+              'name': activity['activity_name'],
+              'note': activity['description'],
+<<<<<<< HEAD
+              'date': activity['activity_date'],
+              'time': activity['activity_time'],
+            };
+          }).toList();
+          // เรียงลำดับกิจกรรมตามวันที่และเวลา
+          _activities.sort((a, b) {
+            final dateA = DateTime.parse('${a['date']} ${a['time']}');
+            final dateB = DateTime.parse('${b['date']} ${b['time']}');
+            return dateA.compareTo(dateB);
+          });
+=======
+              'dateTime': activity['activity_date'], // ใช้เวลาที่ได้จากฐานข้อมูล
+            };
+          }).toList();
+>>>>>>> 397857386c3cabe38132a674b264d33e15ce71c3
         });
       } else {
         throw Exception('Failed to load activities');
@@ -39,61 +77,87 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _saveActivityToDatabase(Map<String, dynamic> activity) async {
     try {
       final response = await http.post(
-        Uri.parse('http://10.10.11.238/flutter/add_activity.php'),
+        Uri.parse(activity['id'].isEmpty
+<<<<<<< HEAD
+            ? 'http://192.168.1.35/flutter/add_activity.php'
+            : 'http://192.168.1.35/flutter/edit_activity.php'),
+=======
+            ? 'http://10.10.11.71/flutter/add_activity.php'
+            : 'http://10.10.11.71/flutter/edit_activity.php'),
+>>>>>>> 397857386c3cabe38132a674b264d33e15ce71c3
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
         body: {
-          'id': activity['id'] ?? '', // Include 'id' for updates
-          'name': activity['name'],
-          'note': activity['note'],
-          'dateTime': activity['dateTime'],
+          'id': activity['id'] ?? '',
+          'activity_name': activity['name'],
+          'description': activity['note'],
+<<<<<<< HEAD
+          'activity_date': activity['date'],
+          'activity_time': activity['time'],
+=======
+          'activity_date': activity['dateTime'], // ใช้เวลาที่ผู้ใช้เลือก
+>>>>>>> 397857386c3cabe38132a674b264d33e15ce71c3
         },
       );
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-        if (responseData['status'] == 'success') {
-          Fluttertoast.showToast(
-            msg: responseData['message'],
-            toastLength: Toast.LENGTH_SHORT,
-          );
-        } else {
-          Fluttertoast.showToast(
-            msg: responseData['message'],
-            toastLength: Toast.LENGTH_SHORT,
-          );
-        }
-      } else {
+<<<<<<< HEAD
+        _showCustomDialog(responseData['message']); // แสดงป๊อปอัพ
+
+        if (activity['id'].isEmpty) {
+=======
         Fluttertoast.showToast(
-          msg: 'Error: ${response.reasonPhrase}',
+          msg: responseData['message'],
           toastLength: Toast.LENGTH_SHORT,
         );
+
+        if (!activity['id'].isEmpty) {
+>>>>>>> 397857386c3cabe38132a674b264d33e15ce71c3
+          _fetchActivities();
+        }
+      } else {
+        _showCustomDialog('Error: ${response.reasonPhrase}'); // แสดงป๊อปอัพ
       }
     } catch (e) {
-      Fluttertoast.showToast(
-        msg: 'Error saving activity: $e',
-        toastLength: Toast.LENGTH_SHORT,
-      );
+      _showCustomDialog('Error saving activity: $e'); // แสดงป๊อปอัพ
     }
   }
 
+<<<<<<< HEAD
+  void _addActivity(String name, String note, DateTime dateTime,
+      [int? index]) async {
+=======
   void _addActivity(String name, String note, DateTime dateTime, [int? index]) async {
+    final formattedDateTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTime); // ใช้รูปแบบที่ตรงตามเวลาที่ผู้ใช้เลือก
+
+>>>>>>> 397857386c3cabe38132a674b264d33e15ce71c3
     final newActivity = {
-      'id': index != null ? _activities[index]['id'] : '', // Include 'id' for updates
+      'id': index != null ? _activities[index]['id'] : '',
       'name': name,
       'note': note,
-      'dateTime': dateTime.toIso8601String(),
+<<<<<<< HEAD
+      'date': DateFormat('yyyy-MM-dd').format(dateTime),
+      'time': DateFormat('HH:mm:ss').format(dateTime),
+=======
+      'dateTime': formattedDateTime, // เก็บเวลาที่ผู้ใช้เลือก
+>>>>>>> 397857386c3cabe38132a674b264d33e15ce71c3
     };
 
     setState(() {
       if (index != null) {
-        // Update existing activity
         _activities[index] = newActivity;
       } else {
-        // Add new activity
         _activities.add(newActivity);
       }
+      // เรียงลำดับกิจกรรมใหม่หลังจากเพิ่มหรือแก้ไข
+      _activities.sort((a, b) {
+        final dateA = DateTime.parse('${a['date']} ${a['time']}');
+        final dateB = DateTime.parse('${b['date']} ${b['time']}');
+        return dateA.compareTo(dateB);
+      });
     });
 
+    // Save to the database
     await _saveActivityToDatabase(newActivity);
   }
 
@@ -101,28 +165,83 @@ class _HomeScreenState extends State<HomeScreen> {
     final activity = _activities[index];
     try {
       final response = await http.post(
-        Uri.parse('http://10.10.11.238/flutter/delete_activity.php'),
+<<<<<<< HEAD
+        Uri.parse('http://192.168.1.35/flutter/delete_activity.php'),
+=======
+        Uri.parse('http://10.10.11.71/flutter/delete_activity.php'),
+>>>>>>> 397857386c3cabe38132a674b264d33e15ce71c3
         headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: {'id': activity['id']}, // Assuming 'id' is an identifier for the activity
+        body: {'id': activity['id']},
       );
 
       if (response.statusCode == 200) {
         setState(() {
           _activities.removeAt(index);
         });
+        _showCustomDialog('Activity deleted successfully.'); // แสดงป๊อปอัพ
       } else {
         throw Exception('Failed to delete activity');
       }
     } catch (e) {
       print('Error deleting activity: $e');
+      _showCustomDialog('Error deleting activity: $e'); // แสดงป๊อปอัพ
     }
   }
 
+void _showCustomDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Container(
+            padding: EdgeInsets.all(8.0), // เพิ่ม Padding รอบๆ
+            decoration: BoxDecoration(
+              color: Colors.teal, // ตั้งค่าสีพื้นหลังเป็นสี teal
+              borderRadius: BorderRadius.circular(8.0), // ทำมุมให้โค้ง
+            ),
+            child: Text(
+              'Notification',
+              style:
+                  TextStyle(color: Colors.white), // เปลี่ยนสีตัวอักษรเป็นสีขาว
+            ),
+          ),
+          content: Text(
+            message,
+            style: TextStyle(color: Colors.black), // เปลี่ยนเป็นสีดำ
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text('OK',
+                  style: TextStyle(
+                      color: Colors.teal)), // ปล่อยสีปุ่ม OK ไว้เหมือนเดิม
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+          backgroundColor: Colors.white, // ตั้งค่าสีพื้นหลังเป็นสีขาว
+        );
+      },
+    );
+  }
+
+
   @override
   Widget build(BuildContext context) {
+    // จัดกลุ่มกิจกรรมตามวันที่
+    Map<String, List<Map<String, dynamic>>> groupedActivities = {};
+    for (var activity in _activities) {
+      final date = activity['date'];
+      if (!groupedActivities.containsKey(date)) {
+        groupedActivities[date] = [];
+      }
+      groupedActivities[date]!.add(activity);
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Home'),
+        backgroundColor: Colors.teal,
         actions: [
           IconButton(
             icon: Icon(Icons.logout),
@@ -140,12 +259,13 @@ class _HomeScreenState extends State<HomeScreen> {
               children: <Widget>[
                 DrawerHeader(
                   decoration: BoxDecoration(
-                    color: Colors.blue,
+                    color: Colors.teal,
                   ),
                   child: Align(
                     alignment: Alignment.topLeft,
                     child: IconButton(
-                      icon: Icon(Icons.account_circle, color: Colors.white, size: 40),
+                      icon: Icon(Icons.account_circle,
+                          color: Colors.white, size: 40),
                       onPressed: () {
                         Navigator.pushReplacementNamed(context, '/login');
                       },
@@ -168,49 +288,140 @@ class _HomeScreenState extends State<HomeScreen> {
                 onPressed: () {
                   Navigator.pushNamed(context, '/settings');
                 },
+                color: Colors.teal,
               ),
             ),
           ],
         ),
       ),
-      body: _activities.isEmpty
-          ? Center(child: Text('No activities yet. Add some!'))
-          : ListView.builder(
-        itemCount: _activities.length,
-        itemBuilder: (context, index) {
-          final activity = _activities[index];
-          final dateTime = DateTime.parse(activity['dateTime']);
-          return Card(
-            color: const Color.fromARGB(255, 255, 255, 255),
-            margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-            elevation: 4,
-            child: ListTile(
-              contentPadding: EdgeInsets.all(16.0),
-              title: Text(activity['name']),
-              subtitle: Text(activity['note']),
-              trailing: Text(
-                "${dateTime.toLocal()}".split(' ')[0] +
-                    " " +
-                    dateTime.hour.toString().padLeft(2, '0') +
-                    ":" +
-                    dateTime.minute.toString().padLeft(2, '0'),
-              ),
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => ActivityDetailScreen(
-                      activity: activity,
-                      index: index,
-                      onSave: _addActivity,
-                      onDelete: _deleteActivity,
+<<<<<<< HEAD
+      body: Container(
+        padding: EdgeInsets.all(16.0),
+        decoration: BoxDecoration(
+          color: Colors.grey[200],
+        ),
+        child: groupedActivities.isEmpty
+            ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.info_outline, size: 80, color: Colors.teal),
+                    SizedBox(height: 20),
+                    Text('No activities yet. Add some!',
+                        style: TextStyle(
+                            color: Colors.teal,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold)),
+                  ],
+                ),
+              )
+            : ListView(
+                children: groupedActivities.entries.map((entry) {
+                  String date = entry.key;
+                  List<Map<String, dynamic>> activities = entry.value;
+
+                  // เรียงลำดับกิจกรรมตามเวลา
+                  activities.sort((a, b) {
+                    final timeA = DateTime.parse('${a['date']} ${a['time']}');
+                    final timeB = DateTime.parse('${b['date']} ${b['time']}');
+                    return timeA.compareTo(timeB);
+                  });
+
+                  return Card(
+                    margin: EdgeInsets.symmetric(vertical: 8.0),
+                    child: ExpansionTile(
+                      title: Text(
+                        DateFormat('EEEE, d MMMM yyyy')
+                            .format(DateTime.parse(date)),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 18),
+                      ),
+                      children: activities.map((activity) {
+                        final dateTime = DateTime.parse(
+                            '${activity['date']} ${activity['time']}');
+
+                        return ListTile(
+                          title: Text(activity['name']),
+                          subtitle: Text(activity['note']),
+                          trailing:
+                              Text(DateFormat('HH:mm:ss').format(dateTime)),
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ActivityDetailScreen(
+                                  activity: activity,
+                                  index: _activities.indexOf(activity),
+                                  onSave: _addActivity,
+                                  onDelete: _deleteActivity,
+                                ),
+                              ),
+                            );
+                          },
+                        );
+                      }).toList(),
                     ),
-                  ),
-                );
-              },
-            ),
-          );
-        },
+                  );
+                }).toList(),
+              ),
+      ),
+floatingActionButton: FloatingActionButton(
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => NewActivityScreen(
+          onAdd: (name, note, dateTime) {
+            _addActivity(name, note, dateTime); // ส่งพารามิเตอร์ไปยังฟังก์ชัน _addActivity
+          },
+        ),
+=======
+      body: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 300),
+        child: _activities.isEmpty
+            ? Center(child: Text('No activities yet. Add some!', key: ValueKey('empty')))
+            : ListView.builder(
+          key: ValueKey('list'),
+          itemCount: _activities.length,
+          itemBuilder: (context, index) {
+            final activity = _activities[index];
+            final dateTime = DateTime.parse(activity['dateTime']); // ใช้เวลาที่เก็บไว้
+
+            final formattedDate = DateFormat('yyyy-MM-dd').format(dateTime);
+            final formattedTime = DateFormat('HH:mm').format(dateTime);
+
+            return Card(
+              color: Colors.white,
+              margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12.0),
+              ),
+              child: ListTile(
+                contentPadding: EdgeInsets.all(16.0),
+                title: Text(activity['name'], style: TextStyle(fontWeight: FontWeight.bold, color: Colors.teal)),
+                subtitle: Text(activity['note']),
+                trailing: Text(
+                  "$formattedDate $formattedTime",
+                  style: TextStyle(color: Colors.deepOrange),
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ActivityDetailScreen(
+                        activity: activity,
+                        index: index,
+                        onSave: _addActivity,
+                        onDelete: _deleteActivity,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
@@ -222,7 +433,14 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
         child: Icon(Icons.add),
+        backgroundColor: Colors.teal,
+>>>>>>> 397857386c3cabe38132a674b264d33e15ce71c3
       ),
+    );
+  },
+  backgroundColor: Colors.teal,
+  child: Icon(Icons.add),
+),
     );
   }
 }

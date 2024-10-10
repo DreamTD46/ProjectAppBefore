@@ -13,57 +13,6 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
   TextEditingController descriptionController = TextEditingController();
   TextEditingController activityDateController = TextEditingController();
 
-  Future<void> saveActivity() async {
-    String activityName = activityNameController.text.trim();
-    String description = descriptionController.text.trim();
-    String activityDate = activityDateController.text.trim();
-
-    if (activityName.isEmpty || activityDate.isEmpty) {
-      Fluttertoast.showToast(
-        msg: 'Please fill in all required fields!',
-        backgroundColor: Colors.orange,
-        textColor: Colors.white,
-        toastLength: Toast.LENGTH_SHORT,
-      );
-      return;
-    }
-
-    try {
-      var url = Uri.http("10.10.11.238", '/flutter/fetch.php');
-      var response = await http.post(url, body: {
-        "name": activityName,
-        "note": description,
-        "dateTime": activityDate,
-      });
-
-      var data = json.decode(response.body);
-
-      if (data.toString() == "Success") {
-        Fluttertoast.showToast(
-          msg: 'Activity Saved Successfully',
-          backgroundColor: Colors.green,
-          textColor: Colors.white,
-          toastLength: Toast.LENGTH_SHORT,
-        );
-        Navigator.pop(context); // Go back to the previous screen
-      } else {
-        Fluttertoast.showToast(
-          backgroundColor: Colors.red,
-          textColor: Colors.white,
-          msg: 'Failed to save activity: $data',
-          toastLength: Toast.LENGTH_SHORT,
-        );
-      }
-    } catch (e) {
-      Fluttertoast.showToast(
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        msg: 'An error occurred. Please try again.',
-        toastLength: Toast.LENGTH_SHORT,
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,7 +44,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                 filled: true,
                 fillColor: Colors.white,
                 contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
               ),
             ),
             SizedBox(height: 16),
@@ -121,7 +70,7 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                 filled: true,
                 fillColor: Colors.white,
                 contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
               ),
             ),
             SizedBox(height: 16),
@@ -147,14 +96,11 @@ class _AddActivityScreenState extends State<AddActivityScreen> {
                 filled: true,
                 fillColor: Colors.white,
                 contentPadding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
               ),
             ),
             SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: saveActivity,
-              child: Text('Save'),
-            ),
+
           ],
         ),
       ),

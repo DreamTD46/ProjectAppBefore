@@ -14,7 +14,7 @@ if (!$db) {
 }
 
 // Retrieve POST data and validate
-$id = isset($_POST['id']) ? $_POST['id'] : null;
+$id = isset($_POST['id']) ? $_POST['id'] : '';
 $activity_name = isset($_POST['name']) ? $_POST['name'] : null;
 $description = isset($_POST['note']) ? $_POST['note'] : null;
 $activity_date = isset($_POST['dateTime']) ? $_POST['dateTime'] : null;

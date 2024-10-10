@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $activity_date = $_POST['dateTime'] ?? '';
 
     if (!empty($activity_name) && !empty($activity_date)) {
-        $sql = "INSERT INTO activity (activity_name, description, activity_date)
+        $sql = "INSERT INTO activities (activity_name, description, activity_date)
                 VALUES ('$activity_name', '$description', '$activity_date')";
 
         if (mysqli_query($db, $sql)) {
