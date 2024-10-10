@@ -23,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _fetchActivities() async {
     try {
       final response =
-          await http.get(Uri.parse('http://10.10.10.158/flutter/fetch.php'));
+          await http.get(Uri.parse('http://192.168.1.35/flutter/fetch.php'));
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = json.decode(response.body);
